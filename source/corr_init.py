@@ -518,7 +518,7 @@ def select_best_keypoints(
 
 
 
-def init_gaussians_with_corr(gaussians, scene, cfg, device, verbose = False, roma_model=None):
+def init_gaussians_with_corr(gaussians, scene, cfg, opt, device, verbose = False, roma_model=None):
     """
     For a given input gaussians and a scene we instantiate a RoMa model(change to indoors if necessary) and process scene
     training frames to extract correspondences. Those are used to initialize gaussians
@@ -681,7 +681,9 @@ def init_gaussians_with_corr(gaussians, scene, cfg, device, verbose = False, rom
                                     torch.cat(all_new_opacities, dim=0)[prune_mask].to(device),
                                     torch.cat(all_new_scaling, dim=0)[prune_mask].to(device),
                                     torch.cat(all_new_rotation, dim=0)[prune_mask].to(device),
-                                    new_tmp_radii[prune_mask].to(device))
+                                    # new_tmp_radii[prune_mask].to(device),
+                                    None,
+                                    opt)
     
     return viewpoint_stack, closest_indices_selected, visualizations
 
@@ -895,7 +897,8 @@ def init_gaussians_with_corr_fast(gaussians, scene, cfg, device, verbose=False, 
         torch.cat(all_new_opacities, dim=0)[prune_mask].to(device),
         torch.cat(all_new_scaling, dim=0)[prune_mask].to(device),
         torch.cat(all_new_rotation, dim=0)[prune_mask].to(device),
-        new_tmp_radii[prune_mask].to(device)
+        # new_tmp_radii[prune_mask].to(device),
+        None
     )
     timings['final_densification_postfix'].append(time.time() - start)
 

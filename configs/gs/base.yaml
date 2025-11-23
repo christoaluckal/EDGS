@@ -43,7 +43,7 @@ dataset:
   source_path:  '' #path to dataset
   model_path:  '' #path to logs
   images: images
-  resolution: -1
+  resolution: 8
   white_background: false
   data_device: cuda
   eval: false

@@ -37,7 +37,7 @@ class EDGSTrainer:
         self.gaussians = GS.gaussians
 
         self.training_config = training_config
-        self.GS_optimizer = GS.gaussians.optimizer
+        # self.GS_optimizer = GS.gaussians.optimizer
         self.dataset_white_background = dataset_white_background
 
         self.training_step = 1
@@ -69,6 +69,7 @@ class EDGSTrainer:
 
     def train(self, train_cfg):
         # 3DGS training
+        self.GS_optimizer = self.GS.gaussians.optimizer
         self.CONSOLE.print("Train 3DGS for {} iterations".format(train_cfg.gs_epochs), style="info")    
         with trange(self.training_step, self.training_step + train_cfg.gs_epochs, desc="[green]Train gaussians") as progress_bar:
             for self.training_step in progress_bar:
@@ -214,7 +215,7 @@ class EDGSTrainer:
                 self.scene.model_path + "/chkpnt" + str(self.gs_step) + ".pth")
 
 
-    def init_with_corr(self, cfg, verbose=False, roma_model=None): 
+    def init_with_corr(self, cfg, opt, verbose=False, roma_model=None): 
         """
         Initializes image with matchings. Also removes SfM init points.
         Args:
@@ -235,6 +236,7 @@ class EDGSTrainer:
             self.GS.gaussians, 
             self.scene, 
             cfg, 
+            opt,
             self.device,                                                                                    
             verbose=verbose,
             roma_model=roma_model)
@@ -248,7 +250,7 @@ class EDGSTrainer:
                 mask = torch.concat([torch.ones(N_splats_at_init, dtype=torch.bool),
                                     torch.zeros(N_splats_after_init-N_splats_at_init, dtype=torch.bool)],
                                 axis=0)
-                self.GS.gaussians.prune_points(mask)
+                # self.GS.gaussians.prune_points(mask)
         with torch.no_grad():
             gaussians =  self.gaussians
             gaussians._scaling =  gaussians.scaling_inverse_activation(gaussians.scaling_activation(gaussians._scaling)*0.5)

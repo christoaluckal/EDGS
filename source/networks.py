@@ -27,7 +27,7 @@ class Warper3DGS(torch.nn.Module):
         if do_train_test_split:
             scene_cameras_train_test_split(self.scene, verbose=verbose)
 
-        self.gaussians.training_setup(opt)
+        # self.gaussians.training_setup(opt)
         self.viewpoint_stack = viewpoint_stack
         if not self.viewpoint_stack:
             self.viewpoint_stack = self.scene.getTrainCameras().copy()

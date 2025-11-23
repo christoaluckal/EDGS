@@ -51,7 +51,8 @@ def main(cfg: omegaconf.DictConfig):
     
     trainer.load_checkpoints(cfg.load)
     trainer.timer.start()
-    trainer.init_with_corr(cfg.init_wC)      
+    trainer.init_with_corr(cfg.init_wC,cfg.gs.opt)      
+    # trainer.GS.gaussians.training_setup(cfg.gs.opt)
     trainer.train(cfg.train)
     
     # All done
