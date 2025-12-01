@@ -166,6 +166,11 @@ class EDGSTrainer:
         ssim_loss = (1.0 - ssim(image, gt_image))
         loss = (1.0 - self.training_config.lambda_dssim) * L1_loss + \
                self.training_config.lambda_dssim * ssim_loss
+        loss_kl_scal = self.gaussians.compute_kl_uniform_scal()
+        loss_kl_xyz = self.gaussians.compute_kl_xyz()
+        loss_kl_opacity = self.gaussians.compute_kl_opacity()
+
+        loss += 1.0*(loss_kl_scal + loss_kl_xyz + loss_kl_opacity)
         self.timer.pause() 
         self.logs_losses[self.training_step] = {"loss": loss.item(),
                                                 "L1_loss": L1_loss.item(),
@@ -240,6 +245,8 @@ class EDGSTrainer:
             self.device,                                                                                    
             verbose=verbose,
             roma_model=roma_model)
+        self.gaussians.training_setup(self.training_config)
+        self.GS_optimizer = self.gaussians.optimizer
 
         # Remove SfM points and leave only matchings inits
         if not cfg.add_SfM_init:
@@ -261,6 +268,8 @@ class EDGSTrainer:
         self.GS.gaussians.tmp_radii = radii
         if self.gs_step < self.training_config.densify_until_iter:
             prune_mask = (self.GS.gaussians.get_opacity < min_opacity).squeeze()
+            if hasattr(self.GS.gaussians, "mr_list") and self.GS.gaussians.mr_list is not None:
+                self.GS.gaussians.mr_list = self.GS.gaussians.mr_list[~prune_mask]
             self.GS.gaussians.prune_points(prune_mask)
             torch.cuda.empty_cache()
         self.GS.gaussians.tmp_radii = None
