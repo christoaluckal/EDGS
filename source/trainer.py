@@ -55,6 +55,8 @@ class EDGSTrainer:
         self.timer = Timer()
         self.log_wandb = log_wandb
 
+
+
     def load_checkpoints(self, load_cfg):
         # Load 3DGS checkpoint
         if load_cfg.gs:
@@ -134,8 +136,8 @@ class EDGSTrainer:
                 if self.log_wandb:
                     wandb.log({f"{config['name']}/L1": l1_test.item(), f"{config['name']}/PSNR": psnr_test.item(), \
                             f"{config['name']}/SSIM": ssim_test.item(), f"{config['name']}/LPIPS_splat": lpips_splat_test.item()}, step = self.training_step)
-                self.CONSOLE.print("\n[ITER {}], #{} gaussians, Evaluating {}: L1={:.6f},  PSNR={:.6f}, SSIM={:.6f}, LPIPS_splat={:.6f} ".format(
-                    self.training_step, len(self.GS.gaussians._xyz), config['name'], l1_test.item(), psnr_test.item(), ssim_test.item(), lpips_splat_test.item()), style="info")
+                self.CONSOLE.print("\n[ITER {}], #{} gaussians, Prob:{} Evaluating {}: L1={:.6f},  PSNR={:.6f}, SSIM={:.6f}, LPIPS_splat={:.6f} ".format(
+                    self.training_step, len(self.GS.gaussians._xyz), self.GS.gaussians.probabilistic, config['name'], l1_test.item(), psnr_test.item(), ssim_test.item(), lpips_splat_test.item()), style="info")
         if self.log_wandb:
             with torch.no_grad():
                 log_samples(torch.stack((log_real_images[0],log_gen_images[0])) , [], self.training_step, caption="Real and Generated Samples")
@@ -199,6 +201,8 @@ class EDGSTrainer:
     def densify_and_prune(self, radii = None):
         # Densification or pruning
         if self.gs_step < self.training_config.densify_until_iter:
+            if self.gs_step % self.GS.gaussians.spawn_interval == 0:
+                self.GS.gaussians.spawn(self.GS.scene.cameras_extent)
             if (self.gs_step > self.training_config.densify_from_iter) and \
                     (self.gs_step % self.training_config.densification_interval == 0):
                 size_threshold = 20 if self.gs_step > self.training_config.opacity_reset_interval else None
