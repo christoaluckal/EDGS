@@ -164,6 +164,7 @@ class EDGSTrainer:
         # Loss
         gt_image = viewpoint_cam.original_image.to(self.device)
         L1_loss = l1_loss(image, gt_image)
+        
 
         ssim_loss = (1.0 - ssim(image, gt_image))
         loss = (1.0 - self.training_config.lambda_dssim) * L1_loss + \
@@ -171,8 +172,10 @@ class EDGSTrainer:
         loss_kl_scal = self.gaussians.compute_kl_uniform_scal()
         loss_kl_xyz = self.gaussians.compute_kl_xyz()
         loss_kl_opacity = self.gaussians.compute_kl_opacity()
-
-        loss += 1.0*(loss_kl_scal + loss_kl_xyz + loss_kl_opacity)
+        prob_loss = 1.0*(loss_kl_scal + loss_kl_xyz + loss_kl_opacity)
+        wandb.log({"train/photo_loss": loss.item(),
+                   "train/prob_loss": prob_loss.item()}, step=self.training_step)
+        loss += prob_loss
         self.timer.pause() 
         self.logs_losses[self.training_step] = {"loss": loss.item(),
                                                 "L1_loss": L1_loss.item(),

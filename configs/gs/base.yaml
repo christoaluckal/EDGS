@@ -3,7 +3,10 @@ _target_: source.networks.Warper3DGS
 verbose: True
 viewpoint_stack: !!null
 sh_degree: 3
-is_probabilistic: False
+vgs:
+  is_probabilistic: False
+  num_models: 10
+  top_K: 2
 
 opt:
   iterations: 30000
