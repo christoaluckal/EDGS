@@ -9,14 +9,14 @@ from gaussian_renderer import render
 from source.data_utils import scene_cameras_train_test_split
 
 class Warper3DGS(torch.nn.Module):
-    def __init__(self, sh_degree,  opt, pipe, dataset, viewpoint_stack, verbose,
+    def __init__(self, sh_degree, is_probabilistic,  opt, pipe, dataset, viewpoint_stack, verbose,
                  do_train_test_split=True):
         super(Warper3DGS, self).__init__()
         """
         Init Warper using all the objects necessary for rendering gaussian splats.
         Here we merely link class objects to the objects instantiated outsided the class.
         """
-        self.gaussians = GaussianModel(sh_degree)
+        self.gaussians = GaussianModel(sh_degree,is_probabilistic)
         self.gaussians.tmp_radii = torch.zeros((self.gaussians.get_xyz.shape[0]), device="cuda")
         self.render = render
         self.gs_config_opt = opt

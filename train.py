@@ -40,7 +40,8 @@ def main(cfg: omegaconf.DictConfig):
                 "antialiasing": False   
                     }
         cfg_log_f.write(str(Namespace(**params)))
-
+    
+    print(cfg.gs)
     # Init both agents
     gs = hydra.utils.instantiate(cfg.gs) 
 
