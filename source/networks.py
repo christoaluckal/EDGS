@@ -5,7 +5,7 @@ sys.path.append('./submodules/gaussian-splatting/')
 
 from random import randint
 from scene import Scene, GaussianModel
-from gaussian_renderer import render
+from gaussian_renderer import render, forward_k_times
 from source.data_utils import scene_cameras_train_test_split
 
 class Warper3DGS(torch.nn.Module):

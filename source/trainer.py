@@ -11,6 +11,7 @@ import lpips
 from source.losses import ssim, l1_loss, psnr
 from rich.console import Console
 from rich.theme import Theme
+import numpy as np
 
 custom_theme = Theme({
     "info": "dim cyan",
@@ -20,8 +21,10 @@ custom_theme = Theme({
 
 from source.corr_init import init_gaussians_with_corr, init_gaussians_with_corr_fast
 from source.utils_aux import log_samples
-
+from gaussian_renderer import forward_k_times
+import torchvision
 from source.timer import Timer
+import os
 
 class EDGSTrainer:
     def __init__(self,
@@ -101,6 +104,9 @@ class EDGSTrainer:
                             (self.training_step > 3000 and self.training_step % 1000 == 228) :
                             self.evaluate()
 
+                    if self.training_step % 100 == 0 or self.training_step == train_cfg.gs_epochs - 1:
+                        # torch.cuda.empty_cache()
+                        self.render_set(self.scene, self.GS.pipe, self.training_step)
                     self.timer.start()
 
 
@@ -280,4 +286,93 @@ class EDGSTrainer:
             self.GS.gaussians.prune_points(prune_mask)
             torch.cuda.empty_cache()
         self.GS.gaussians.tmp_radii = None
+
+
+    def render_set(self, scene, pipeline, training_step):
+        gaussians, views = scene.gaussians, self.scene.getTestCameras()
+
+        bg_color = [0, 0, 0]
+        background = torch.tensor(bg_color, dtype=torch.float32, device="cuda")
+
+        render_path = f"{scene.model_path}/{training_step}/renders"
+        gts_path = f"{scene.model_path}/{training_step}/gt"
+        unc_path = f"{scene.model_path}/{training_step}/unc"
+        raw_path = f"{scene.model_path}/{training_step}/raw"
+
+        os.makedirs(render_path, exist_ok=True)
+        os.makedirs(gts_path, exist_ok=True)
+        os.makedirs(unc_path, exist_ok=True)
+
+        means = []
+        gts = []
+        stds = []
+        for idx, view in enumerate(tqdm(views, desc="Rendering progress")):
+
+            gt = view.original_image[0:3, :, :]
+            out = forward_k_times(view, gaussians, pipeline, background)
+            mean = out['comp_rgb'].detach()
+            rgbs = out['comp_rgbs'].detach()
+            std = out['comp_std'].detach()
+            depths = out['depths'].detach()
+
+            # mae = ((mean - gt)).abs()
+
+            # ause_mae, ause_err_mae, ause_err_by_var_mae = ause_br(std.reshape(-1), mae.reshape(-1), err_type='mae')
+            # mean_nll = nll_kernel_density(rgbs.permute(1,2,3,0), std, gt)
+
+            # psnr_all += psnr(mean, gt).mean().item()
+            # ssim_all += ssim(mean, gt).mean().item()
+            # lpips_all += lpips(mean, gt, net_type="vgg").mean().item()
+
+            # ause_mae_all += ause_mae.item()
+            # mean_nll_all += mean_nll.item()
+
+            # if eval_depth: 
+            #     depths = depths * scene.depth_scale
+
+            #     depth = depths.mean(dim=0)
+            #     depth_std = depths.std(dim=0)
+            #     depth_gt = view.depth
+
+            #     depth_mae = ((depth - depth_gt)).abs()
+            #     depth_ause_mae, depth_ause_err_mae, depth_ause_err_by_var_mae = ause_br(depth_std.reshape(-1), depth_mae.reshape(-1), err_type='mae')
+            #     depth_ause_mae_all += depth_ause_mae
+
+
+            unc_vis_multiply = 10
+            if idx == 0:
+                torchvision.utils.save_image(mean, os.path.join(render_path, '{0:05d}'.format(idx) + ".png"))
+                torchvision.utils.save_image(gt, os.path.join(gts_path, '{0:05d}'.format(idx) + ".png"))
+                torchvision.utils.save_image(unc_vis_multiply*std, os.path.join(unc_path, '{0:05d}'.format(idx) + ".png"))
+
+            means.append(mean.cpu())
+            gts.append(gt.cpu())
+            stds.append(std.cpu())
+            # np.save(os.path.join(raw_path, '{0:05d}_mean.npy'.format(idx)), mean.cpu().numpy())
+            # np.save(os.path.join(raw_path, '{0:05d}_std.npy'.format(idx)), std.cpu().numpy())
+            # np.save(os.path.join(raw_path, '{0:05d}_rgbs.npy'.format(idx)), rgbs.cpu().numpy())
+            # np.save(os.path.join(raw_path, '{0:05d}_depths.npy'.format(idx)), depths.cpu().numpy())
+
+    
+
+        # psnr_all /= len(views)
+        # ause_mae_all /= len(views)
+        # mean_nll_all /= len(views)
+        # ssim_all /= len(views)
+        # lpips_all /= len(views)
+
+        # depth_ause_mae_all /= len(views)
+
+        # csv_file = f"output/eval_results_{dataset.dataset_name}.csv"
+        # with open(csv_file, mode='a', newline='') as file:
+        #     # writer = csv.writer(file)
+
+        #     if eval_depth: 
+        #         results = f"\nEvaluation Results: PSNR {psnr_all} SSIM {ssim_all} LPIPS {lpips_all} AUSE {ause_mae_all} NLL {mean_nll_all} Depth AUSE {depth_ause_mae_all}"
+        #         print(results)
+        #         writer.writerow([dataset.dataset_name, scene_name, psnr_all, ssim_all, lpips_all, ause_mae_all, mean_nll_all, depth_ause_mae_all])
+        #     else: 
+        #         results = f"\nEvaluation Results: PSNR {psnr_all} SSIM {ssim_all} LPIPS {lpips_all} AUSE {ause_mae_all} NLL {mean_nll_all}"
+        #         print(results)
+        #         writer.writerow([dataset.dataset_name, scene_name, psnr_all, ssim_all, lpips_all, ause_mae_all, mean_nll_all])
 
