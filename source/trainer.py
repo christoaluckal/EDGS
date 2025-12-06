@@ -203,6 +203,10 @@ class EDGSTrainer:
                                                                      render_pkg["visibility_filter"])
 
         # Optimizer step
+        g = self.GS.gaussians
+        print("xyz_offset grad mean:", g.offsets["_xyz_offset"].grad.abs().mean().item())
+        print("scaling_offset grad mean:", g.offsets["_scaling_offset"].grad.abs().mean().item())
+        print("opacity_offset grad mean:", g.offsets["_opacity_offset"].grad.abs().mean().item())
         self.GS_optimizer.step()
         self.GS_optimizer.zero_grad(set_to_none=True)
         return render_pkg["radii"]

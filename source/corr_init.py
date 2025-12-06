@@ -688,7 +688,7 @@ def init_gaussians_with_corr(gaussians, scene, cfg, opt, device, verbose = False
                                     opt,
                                     True)
                                     
-    
+    gaussians.mr_list[:] = 0.2
     return viewpoint_stack, closest_indices_selected, visualizations
 
 
