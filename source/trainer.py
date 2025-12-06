@@ -104,7 +104,7 @@ class EDGSTrainer:
                             (self.training_step > 3000 and self.training_step % 1000 == 228) :
                             self.evaluate()
 
-                    if self.training_step % 100 == 0 or self.training_step == train_cfg.gs_epochs - 1:
+                    if self.training_step % 1000 == 0 or self.training_step == train_cfg.gs_epochs - 1:
                         # torch.cuda.empty_cache()
                         self.render_set(self.scene, self.GS.pipe, self.training_step)
                     self.timer.start()
@@ -204,9 +204,9 @@ class EDGSTrainer:
 
         # Optimizer step
         g = self.GS.gaussians
-        print("xyz_offset grad mean:", g.offsets["_xyz_offset"].grad.abs().mean().item())
-        print("scaling_offset grad mean:", g.offsets["_scaling_offset"].grad.abs().mean().item())
-        print("opacity_offset grad mean:", g.offsets["_opacity_offset"].grad.abs().mean().item())
+        # print("xyz_offset grad mean:", g.offsets["_xyz_offset"].grad.abs().mean().item())
+        # print("scaling_offset grad mean:", g.offsets["_scaling_offset"].grad.abs().mean().item())
+        # print("opacity_offset grad mean:", g.offsets["_opacity_offset"].grad.abs().mean().item())
         self.GS_optimizer.step()
         self.GS_optimizer.zero_grad(set_to_none=True)
         return render_pkg["radii"]
@@ -349,7 +349,8 @@ class EDGSTrainer:
                 torchvision.utils.save_image(mean, os.path.join(render_path, '{0:05d}'.format(idx) + ".png"))
                 torchvision.utils.save_image(gt, os.path.join(gts_path, '{0:05d}'.format(idx) + ".png"))
                 torchvision.utils.save_image(unc_vis_multiply*std, os.path.join(unc_path, '{0:05d}'.format(idx) + ".png"))
-                norm_std = (std - std.min()) / (std.max() - std.min() + 1e-8)
+                # norm_std = (std - std.min()) / (std.max() - std.min() + 1e-8)
+                norm_std = std
 
                 wandb.log({f"rendered_images/mean_{idx}": wandb.Image(mean.cpu(), caption=f"Rendered Mean {idx}")}, step=training_step)
                 wandb.log({f"rendered_images/gt_{idx}": wandb.Image(gt.cpu(), caption=f"Ground Truth {idx}")}, step=training_step)
