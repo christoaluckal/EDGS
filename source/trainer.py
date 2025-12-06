@@ -258,7 +258,7 @@ class EDGSTrainer:
             self.device,                                                                                    
             verbose=verbose,
             roma_model=roma_model)
-        self.gaussians.training_setup(self.training_config)
+        # self.gaussians.training_setup(self.training_config)
         self.GS_optimizer = self.gaussians.optimizer
 
         # Remove SfM points and leave only matchings inits
@@ -341,13 +341,18 @@ class EDGSTrainer:
 
             unc_vis_multiply = 10
             if idx == 0:
+                print(f"@@@@@@@@@@@@@ std min {std.min().item()} max {std.max().item()} mean {std.mean().item()} @@@@@@@@@@@@@")
                 torchvision.utils.save_image(mean, os.path.join(render_path, '{0:05d}'.format(idx) + ".png"))
                 torchvision.utils.save_image(gt, os.path.join(gts_path, '{0:05d}'.format(idx) + ".png"))
                 torchvision.utils.save_image(unc_vis_multiply*std, os.path.join(unc_path, '{0:05d}'.format(idx) + ".png"))
+                norm_std = (std - std.min()) / (std.max() - std.min() + 1e-8)
 
-            means.append(mean.cpu())
-            gts.append(gt.cpu())
-            stds.append(std.cpu())
+                wandb.log({f"rendered_images/mean_{idx}": wandb.Image(mean.cpu(), caption=f"Rendered Mean {idx}")}, step=training_step)
+                wandb.log({f"rendered_images/gt_{idx}": wandb.Image(gt.cpu(), caption=f"Ground Truth {idx}")}, step=training_step)
+                wandb.log({f"rendered_images/std_{idx}": wandb.Image(norm_std.cpu(), caption=f"Rendered Std {idx}")}, step=training_step)
+
+                
+
             # np.save(os.path.join(raw_path, '{0:05d}_mean.npy'.format(idx)), mean.cpu().numpy())
             # np.save(os.path.join(raw_path, '{0:05d}_std.npy'.format(idx)), std.cpu().numpy())
             # np.save(os.path.join(raw_path, '{0:05d}_rgbs.npy'.format(idx)), rgbs.cpu().numpy())

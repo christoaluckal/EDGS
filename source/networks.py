@@ -17,7 +17,7 @@ class Warper3DGS(torch.nn.Module):
         Here we merely link class objects to the objects instantiated outsided the class.
         """
         self.gaussians = GaussianModel(sh_degree,vgs.is_probabilistic, vgs.num_models, vgs.top_K)
-        self.gaussians.tmp_radii = torch.zeros((self.gaussians.get_xyz.shape[0]), device="cuda")
+        # self.gaussians.tmp_radii = torch.zeros((self.gaussians.get_xyz.shape[0]), device="cuda")
         self.render = render
         self.gs_config_opt = opt
         bg_color = [1, 1, 1] if dataset.white_background else [0, 0, 0]

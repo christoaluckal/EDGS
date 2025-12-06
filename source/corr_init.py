@@ -674,6 +674,8 @@ def init_gaussians_with_corr(gaussians, scene, cfg, opt, device, verbose = False
     all_new_features_dc = torch.cat(all_new_features_dc, dim=0)
     new_tmp_radii = torch.zeros(all_new_xyz.shape[0])
     prune_mask = torch.ones(all_new_xyz.shape[0], dtype=torch.bool)
+    new_size = all_new_xyz.shape[0]+ gaussians._xyz.shape[0]
+    gaussians.init_offset(new_size)
     
     gaussians.densification_postfix(all_new_xyz[prune_mask].to(device),
                                     all_new_features_dc[prune_mask].to(device),
@@ -683,7 +685,9 @@ def init_gaussians_with_corr(gaussians, scene, cfg, opt, device, verbose = False
                                     torch.cat(all_new_rotation, dim=0)[prune_mask].to(device),
                                     # new_tmp_radii[prune_mask].to(device),
                                     None,
-                                    opt)
+                                    opt,
+                                    True)
+                                    
     
     return viewpoint_stack, closest_indices_selected, visualizations
 
@@ -898,7 +902,9 @@ def init_gaussians_with_corr_fast(gaussians, scene, cfg, device, verbose=False, 
         torch.cat(all_new_scaling, dim=0)[prune_mask].to(device),
         torch.cat(all_new_rotation, dim=0)[prune_mask].to(device),
         # new_tmp_radii[prune_mask].to(device),
-        None
+        None,
+        None,
+        True
     )
     timings['final_densification_postfix'].append(time.time() - start)
 
