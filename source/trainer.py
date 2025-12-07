@@ -214,8 +214,9 @@ class EDGSTrainer:
     def densify_and_prune(self, radii = None):
         # Densification or pruning
         if self.gs_step < self.training_config.densify_until_iter:
-            if self.gs_step % self.GS.gaussians.spawn_interval == 0:
-                self.GS.gaussians.spawn(self.GS.scene.cameras_extent)
+            if self.GS.gaussians.probabilistic:
+                if self.gs_step % self.GS.gaussians.spawn_interval == 0:
+                    self.GS.gaussians.spawn(self.GS.scene.cameras_extent)
             if (self.gs_step > self.training_config.densify_from_iter) and \
                     (self.gs_step % self.training_config.densification_interval == 0):
                 size_threshold = 20 if self.gs_step > self.training_config.opacity_reset_interval else None

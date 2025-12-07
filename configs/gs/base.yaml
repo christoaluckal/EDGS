@@ -4,6 +4,7 @@ verbose: True
 viewpoint_stack: !!null
 sh_degree: 3
 vgs:
+  vanilla: True
   is_probabilistic: False
   num_models: 10
   top_K: 2

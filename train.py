@@ -10,12 +10,16 @@ import time
 
 @hydra.main(config_path="configs", config_name="train", version_base="1.2")
 def main(cfg: omegaconf.DictConfig):
+    # gs.dataset.model_path=./outputs/exp_nm{nm}_nn{nn}_td{td}_pr{pr}_va{va}_nmodel{nmodel}_k{k}
     num_matches = cfg.init_wC.matches_per_ref
     num_nns = cfg.init_wC.nns_per_ref
-    is_prob = cfg.gs.vgs.is_probabilistic
-    n_models = cfg.gs.vgs.num_models
-    top_K = cfg.gs.vgs.top_K
-    exp_name = f"EDGS_prob{is_prob}_nm{num_matches}_nn{num_nns}_nmodel{n_models}_k{top_K}"
+    train_densify = cfg.train.no_densify
+    prob = cfg.gs.vgs.is_probabilistic
+    vanilla = cfg.gs.vgs.vanilla
+    nmodel = cfg.gs.vgs.num_models
+    k = cfg.gs.vgs.top_K
+    exp_name = f"exp_nm{num_matches}_nn{num_nns}_td{train_densify}_pr{prob}_va{vanilla}_nmodel{nmodel}_k{k}"
+
     _ = wandb.init(entity=cfg.wandb.entity,
                    project=cfg.wandb.project,
                    config=omegaconf.OmegaConf.to_container(cfg, resolve=True, throw_on_missing=True),
@@ -47,7 +51,7 @@ def main(cfg: omegaconf.DictConfig):
                     }
         cfg_log_f.write(str(Namespace(**params)))
     
-    print(cfg.gs)
+    print(cfg)
     # Init both agents
     gs = hydra.utils.instantiate(cfg.gs) 
 

@@ -530,6 +530,12 @@ def init_gaussians_with_corr(gaussians, scene, cfg, opt, device, verbose = False
         gaussians: inplace transforms object gaussians of the class GaussianModel.
 
     """
+    print(f"@@@@@@@@@@@ {gaussians.vanilla}")
+    if gaussians.vanilla == True:
+        gaussians.training_setup(opt)
+        print("Vannila gaussians selected, skipping RoMa-based initialization.")
+        return None,None,None
+    
     if roma_model is None:
         if cfg.roma_model == "indoors":
             roma_model = roma_indoor(device=device)

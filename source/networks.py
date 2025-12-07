@@ -16,7 +16,7 @@ class Warper3DGS(torch.nn.Module):
         Init Warper using all the objects necessary for rendering gaussian splats.
         Here we merely link class objects to the objects instantiated outsided the class.
         """
-        self.gaussians = GaussianModel(sh_degree,vgs.is_probabilistic, vgs.num_models, vgs.top_K)
+        self.gaussians = GaussianModel(sh_degree,vgs.vanilla, vgs.is_probabilistic, vgs.num_models, vgs.top_K)
         # self.gaussians.tmp_radii = torch.zeros((self.gaussians.get_xyz.shape[0]), device="cuda")
         self.render = render
         self.gs_config_opt = opt
