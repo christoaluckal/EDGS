@@ -675,7 +675,10 @@ def init_gaussians_with_corr(gaussians, scene, cfg, opt, device, verbose = False
     new_tmp_radii = torch.zeros(all_new_xyz.shape[0])
     prune_mask = torch.ones(all_new_xyz.shape[0], dtype=torch.bool)
     new_size = all_new_xyz.shape[0]+ gaussians._xyz.shape[0]
-    gaussians.init_offset(new_size)
+
+    if gaussians.probabilistic == True:
+        gaussians.init_offset(new_size)
+        gaussians.mr_list[:] = 0.2
     
     gaussians.densification_postfix(all_new_xyz[prune_mask].to(device),
                                     all_new_features_dc[prune_mask].to(device),
@@ -688,7 +691,7 @@ def init_gaussians_with_corr(gaussians, scene, cfg, opt, device, verbose = False
                                     opt,
                                     True)
                                     
-    gaussians.mr_list[:] = 0.2
+    
     return viewpoint_stack, closest_indices_selected, visualizations
 
 

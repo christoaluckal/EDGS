@@ -4,7 +4,7 @@ import subprocess
 num_matches = [5000,2000,1000]
 num_nns = [3]
 num_refs = 500
-prob = [True, False]
+prob = [ True, False]
 n_models = [2,5,10]
 top_K = [2,4,5]
 
@@ -15,6 +15,6 @@ for nm in num_matches:
                 for k in top_K:
                     if pr and k > nmodel:
                         continue
-                    cmd = f"python train.py   train.gs_epochs=18000   train.no_densify=True   gs.dataset.source_path=/home/christoa/Downloads/360_v2/stump   gs.dataset.model_path=./outputs/test_nm{nm}_nn{nn}_pr{pr}_nmodel{nmodel}_k{k}   init_wC.matches_per_ref={nm}   init_wC.nns_per_ref={nn} init_wC.num_refs={num_refs} gs.vgs.is_probabilistic={pr} gs.vgs.num_models={nmodel} gs.vgs.top_K={k}"
+                    cmd = f"python train.py   train.gs_epochs=16000   train.no_densify=True   gs.dataset.source_path=/home/moog-2/Downloads/360_v2/stump   gs.dataset.model_path=./outputs/test_nm{nm}_nn{nn}_pr{pr}_nmodel{nmodel}_k{k}   init_wC.matches_per_ref={nm}   init_wC.nns_per_ref={nn} init_wC.num_refs={num_refs} gs.vgs.is_probabilistic={pr} gs.vgs.num_models={nmodel} gs.vgs.top_K={k}"
                     print(f"Running command: {cmd}")
                     subprocess.run(cmd, shell=True)

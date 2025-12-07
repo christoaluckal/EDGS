@@ -104,7 +104,7 @@ class EDGSTrainer:
                             (self.training_step > 3000 and self.training_step % 1000 == 228) :
                             self.evaluate()
 
-                    if self.training_step % 1000 == 0 or self.training_step == train_cfg.gs_epochs - 1:
+                    if (self.training_step % 1000 == 0 or self.training_step == train_cfg.gs_epochs - 1) and self.GS.gaussians.probabilistic:
                         # torch.cuda.empty_cache()
                         self.render_set(self.scene, self.GS.pipe, self.training_step)
                     self.timer.start()
