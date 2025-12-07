@@ -83,7 +83,8 @@ class EDGSTrainer:
                     if train_cfg.no_densify:
                         self.prune(radii)
                     else:
-                        self.densify_and_prune(radii)
+                        if self.gs_step % train_cfg.densification_interval == 0:
+                            self.densify_and_prune(radii)
                     if train_cfg.reduce_opacity:
                         # Slightly reduce opacity every few steps:
                         if self.gs_step < self.training_config.densify_until_iter and self.gs_step % 10 == 0:
