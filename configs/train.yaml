@@ -14,7 +14,7 @@ wandb:
     
 train:
   gs_epochs: 0 # number of 3dgs iterations
-  densification_interval: 1000
+  densification_interval: 100
   reduce_opacity: True 
   no_densify: False # if True, the model will not be densified
   max_lr: True 
@@ -28,6 +28,7 @@ verbose: true
 
 init_wC:
   use: True # use EDGS
+  exp_name: "test"
   matches_per_ref: 15_000 # number of matches per reference
   num_refs: 180 # number of reference images
   nns_per_ref: 3 # number of nearest neighbors per reference
