@@ -24,13 +24,13 @@ class ExpParams:
     def __repr__(self) -> str:
         return f"ExpParams(num_matches={self.num_matches}, num_nns={self.num_nns}, num_refs={self.num_refs}, train_nodensify={self.train_nodensify}, is_edgs={self.is_edgs}, is_vgs={self.is_vgs}, is_vanilla={self.is_vanilla}, n_models={self.n_models}, top_K={self.top_K}, model_name={self.model_name})"
 
-models        = ["bicycle", "bonsai", "counter", "garden", "kitchen", "room", "stump"]
-num_matches   = [2000, 1000]
-num_nns       = [3]
+models        = ["bicycle"]
+num_matches   = [2000,1000]
+num_nns       = [2]
 num_refs      = [500]       # if you want this in the config tuple
 train_densify = [True]
 prob_vals     = [False]
-n_models_vals = [2, 5]
+n_models_vals = [2]
 top_K_vals    = [2]
 
 
@@ -46,7 +46,7 @@ for m in models:
     t = ExpParams(num_matches=nm, num_nns=nn, num_refs=nr, train_densify=td, is_edgs=is_edgs, is_vgs=is_vgs, is_vanilla=is_vanilla, n_models=n_m, top_K=k, model_name=m)
     fin_exp_list.append(t)
 
-for i in [(True, False), (False, True)]:
+for i in [(True,True), (True, False), (False, True) ]:
     is_edgs = i[0]
     is_vgs  = i[1]
     is_vanilla = False
@@ -67,7 +67,7 @@ print(f"Total experiments to run: {len(exp_list)}")
 
 
 # for (nm, nn, td, pr, va, nmodel, k) in exp_list:
-for exp in exp_list:
+for exp in exp_list[1:]:
     nm     = exp.num_matches
     nn     = exp.num_nns
     td     = exp.train_nodensify
@@ -94,4 +94,5 @@ for exp in exp_list:
     cmd = f"python train.py   train.gs_epochs=16000  train.no_densify={td}   gs.dataset.source_path={model_path}   gs.dataset.model_path={output_path}   init_wC.matches_per_ref={nm}   init_wC.nns_per_ref={nn} init_wC.num_refs={exp.num_refs} gs.vgs.is_probabilistic={pr} gs.vgs.vanilla={va} gs.vgs.num_models={nmodel} gs.vgs.top_K={k} init_wC.exp_name={exp_name}"
     print(f"Running command: {cmd}")
     subprocess.run(cmd, shell=True)
+    
 
