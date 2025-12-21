@@ -5,6 +5,7 @@ viewpoint_stack: !!null
 sh_degree: 3
 vgs:
   vanilla: True
+  edgs: False
   is_probabilistic: False
   num_models: 10
   top_K: 2

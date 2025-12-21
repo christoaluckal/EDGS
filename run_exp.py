@@ -28,7 +28,7 @@ models        = ["bicycle"]
 num_matches   = [2000,1000]
 num_nns       = [2]
 num_refs      = [500]       # if you want this in the config tuple
-train_densify = [True]
+train_densify = [True, False]
 prob_vals     = [False]
 n_models_vals = [2]
 top_K_vals    = [2]
@@ -52,6 +52,9 @@ for i in [(True,True), (True, False), (False, True) ]:
     is_vanilla = False
     for m in models:
         for nm, nn, nr, td, p, n_m, k in product(num_matches, num_nns, num_refs, train_densify, prob_vals, n_models_vals, top_K_vals):
+            if is_edgs and td:
+                # EDGS with densify training is not supported
+                continue
             t = ExpParams(num_matches=nm, num_nns=nn, num_refs=nr, train_densify=td, is_edgs=is_edgs, is_vgs=is_vgs, is_vanilla=is_vanilla, n_models=n_m, top_K=k, model_name=m)
             fin_exp_list.append(t)
 
